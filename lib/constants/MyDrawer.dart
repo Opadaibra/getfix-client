@@ -9,6 +9,7 @@ import 'package:getfix/View/rate/ratemaintenance.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_locales/flutter_locales.dart';
 import 'package:getfix/Settings/Settings.dart';
+import 'package:getfix/View/showproduct/showproducts.dart';
 import 'package:getfix/constants/constant.dart';
 import 'package:getfix/View/Clientdashboard/Dashboard.dart';
 
@@ -48,6 +49,7 @@ class MyDrawerState extends State<MyDrawer> {
                   // notiticationListtitle(context),
                   //   rateteam(context),
                   showmissions(context),
+                  showproducts(context),
                   // checkWarrantyestate(context),
                   //addsite(context),
                   maintenanceid(context),
@@ -170,6 +172,25 @@ class MyDrawerState extends State<MyDrawer> {
         Scaffold.of(context).closeDrawer();
 
         Get.to(Usertutorialguide());
+      },
+    );
+  }
+
+  ListTile showproducts(BuildContext context) {
+    return ListTile(
+      title: LocaleText(
+        "showprod",
+        textAlign: TextAlign.start,
+        style: draweritemstyle,
+      ),
+      leading: Icon(
+        Icons.production_quantity_limits,
+        color: kbackground,
+      ),
+      onTap: () {
+        Scaffold.of(context).closeDrawer();
+
+        Get.to(Showproducts());
       },
     );
   }

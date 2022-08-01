@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_locales/flutter_locales.dart';
 import 'package:getfix/Controller/Apicaller.dart';
 import 'package:getfix/View/LogIn/LoginPage.dart';
+import 'package:getfix/View/Signup/SignUpPage.dart';
 import 'package:getfix/constants/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Bodysecondpage extends StatefulWidget {
   @override
@@ -30,24 +32,26 @@ class _BodysecondpageState extends State<Bodysecondpage> {
       setState(() {
         signuppressed = true;
       });
-
       var response = await apicaller.postrequest(registerlink, {
         "username": _username.text,
         "email": _emailController.text,
         "password": _passwordController.text,
         "phone_num": _phonenumber.text
       });
+      SharedPreferences pre = await SharedPreferences.getInstance();
       try {
         if (response['message'] == "successfully") {
           setState(() {
             signuppressed = false;
+            pre.setString("email", _emailController.text);
+            pre.setString("phonenumber", _phonenumber.text);
           });
-          Get.off(Dashboard());
+          Get.to(SignUpPage());
         }
       } catch (e) {
         setState(() {
           signuppressed = false;
-          msgStatus = "this user is already exist";
+          msgStatus = "unexpected error";
         });
 
         /// print(response['message']);
@@ -359,7 +363,7 @@ class _BodysecondpageState extends State<Bodysecondpage> {
                   color: kbackground,
                 )
               : LocaleText(
-                  "signup",
+                  "next",
                   style: Manger().styleofText(
                       kbackground, false, size.width * 0.04, context, true),
                 ),

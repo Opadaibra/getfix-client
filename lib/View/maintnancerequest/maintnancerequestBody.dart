@@ -1,5 +1,6 @@
 //Sign BODY
 
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 import 'package:barcode_scan2/barcode_scan2.dart';
@@ -51,7 +52,10 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
   @override
   // ignore: must_call_super
   void initState() {
-    SetuserSitelist();
+    // SetuserSitelist();
+    Future.delayed(Duration(seconds: 2), () {
+      SetuserSitelist();
+    });
     getcustomerid();
   }
 
@@ -67,7 +71,6 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
     final queryParameters = {
       'customer_id': "$customer_id",
     };
-
     final uri = Uri.https("al-hafez.herokuapp.com",
         '/api/address/get_all_addresses', queryParameters);
     final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
@@ -77,24 +80,22 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
       if (respone.statusCode == 200) {
         var responsebody = jsonDecode(respone.body);
         final length = responsebody.length;
+        print(responsebody);
         setState(() {
           mysite.clear();
-          //   citiesid.clear();
         });
         for (int i = 0; i < length; i++) {
           // print(responsebody[i]['name']);
-          if (!mysite.contains(
-              "${responsebody[i]['region']} - ${responsebody[i]['city']} -${responsebody[i]['street']}")) {
-            setState(() {
-              mysite.add(
-                  "${responsebody[i]['region']},${responsebody[i]['city']},${responsebody[i]['street']}");
-              templist.add(i);
-            });
-          }
+
+          setState(() {
+            mysite.add(
+                "${responsebody[i]['region']},${responsebody[i]['city']},${responsebody[i]['street']}");
+            templist.add(i);
+          });
         }
         return responsebody;
       } else {
-        print("Error ${respone.statusCode}");
+        print("Errorss ${respone.statusCode}");
       }
     } catch (e) {
       print("Errore api sending unsuccessfully$e");
@@ -284,7 +285,9 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
 
       setState(() => scanResult = result);
       if (scanResult != null) {
-        print(scanResult!.rawContent.toString());
+        print("qr is :${scanResult!.rawContent}");
+      } else {
+        print("123t");
       }
     } on PlatformException catch (e) {
       setState(() {

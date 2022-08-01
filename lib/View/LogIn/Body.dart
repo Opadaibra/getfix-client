@@ -1,12 +1,14 @@
 import 'package:get/get.dart';
 import 'package:getfix/Controller/linkapi.dart';
 import 'package:getfix/View/Clientdashboard/Dashboard.dart';
+import 'package:getfix/View/Signup/SignUpPageseconde.dart';
 import 'package:getfix/constants/Customeappbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_locales/flutter_locales.dart';
 import 'package:getfix/Controller/Apicaller.dart';
 import 'package:getfix/View/Signup/SignUpPage.dart';
 import 'package:getfix/constants/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 bool loginpressed = false;
 
@@ -23,6 +25,8 @@ class _BodyState extends State<Body> {
   final TextEditingController _passwordController = new TextEditingController();
   Apicaller apicaller = new Apicaller();
   String msgStatus = '';
+  @override
+  void initState() {}
   /*_onPressed() {
     setState(() {
       /*if (_emailController.text.trim().toLowerCase().isNotEmpty &&
@@ -119,10 +123,7 @@ class _BodyState extends State<Body> {
               textAlign: TextAlign.center,
             ),
             onPressed: () {
-              setState(() {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SignUpPage()));
-              });
+              Get.to(SecondSignUpPage());
             }),
       ),
     );
@@ -312,6 +313,7 @@ class _BodyState extends State<Body> {
   }
 
   login(Size size) async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
     if (checkfieldformat()) {
       setState(() {
         loginpressed = true;
@@ -320,10 +322,13 @@ class _BodyState extends State<Body> {
         "username": _emailController.text,
         "password": _passwordController.text,
       });
-
+      print(response);
       try {
-        if (response['message'] == "Sucess") {
+        if (response['message'] == "Success") {
           setState(() {
+            customer_id = response['Id'];
+            pref.setString("phonenumber", response['phone']);
+            pref.setInt("customerid", customer_id);
             loginpressed = false;
           });
           Get.off(Dashboard());

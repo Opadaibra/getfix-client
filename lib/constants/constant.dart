@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_locales/flutter_locales.dart';
 
-int customer_id =0;
+int customer_id = 0;
+
 ////////////////////////////////////
 Color kprimarycolor = Color(0xFF37506C);
 Color ksecondrycolor = Color(0xFFFF715A);

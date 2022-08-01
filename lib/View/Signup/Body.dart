@@ -3,6 +3,7 @@
 import 'package:get/get.dart';
 import 'package:getfix/Controller/linkapi.dart';
 import 'package:getfix/View/Clientdashboard/Dashboard.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_locales/flutter_locales.dart';
 import 'package:getfix/Controller/Apicaller.dart';
@@ -20,29 +21,30 @@ class _BodyState extends State<Body> {
   Apicaller apicaller = new Apicaller();
   Text usernamehint = LocaleText("username");
   Text passwordhint = LocaleText("pasword");
-  final TextEditingController _emailController = new TextEditingController();
-  final TextEditingController _birthdateController =
-      new TextEditingController();
+
   final TextEditingController _firstname = new TextEditingController();
   final TextEditingController _lastname = new TextEditingController();
-  final TextEditingController _phonenumber = new TextEditingController();
   String msgStatus = '';
   bool signuppressed = false;
-
-  next(Size size) async {
+  DateTime _dateTime = DateTime.now();
+  DateTime enddate = DateTime.now();
+  var pickeddate;
+  creataccount(Size size) async {
     if (checkfieldformat()) {
       setState(() {
         signuppressed = true;
       });
       //print( _phonenumber.text)
       var response = await apicaller.postrequest(addcustomerlink, {
-        "phone": _phonenumber.text,
-        "email": _emailController.text,
+        "phone": myphonenumber,
+        "email": myemail,
         "f_name": _firstname.text,
         "l_name": _lastname.text,
-        "birth": _birthdateController.text,
+        "birth": pickeddate.toString(),
       });
       SharedPreferences preferences = await SharedPreferences.getInstance();
+      print(response);
+      print(signuppressed);
 
       if (response["message"] == "succes") {
         var secondrspon = response["id"];
@@ -51,7 +53,7 @@ class _BodyState extends State<Body> {
           customer_id = secondrspon["id"];
           signuppressed = false;
           preferences.setInt("customerid", customer_id);
-          Get.to(SecondSignUpPage());
+          Get.off(Dashboard());
         });
       } else if (response["message"] == "Not Valid") {
         setState(() {
@@ -84,6 +86,24 @@ class _BodyState extends State<Body> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    getphoneandemail();
+  }
+
+  String myphonenumber = "null";
+  String myemail = "null";
+  getphoneandemail() async {
+    SharedPreferences pre = await SharedPreferences.getInstance();
+    try {
+      myphonenumber = pre.getString("phonenumber")!;
+      myemail = pre.getString("email")!;
+      print(myphonenumber);
+      print(myemail);
+    } catch (e) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
     Size size = Manger().getsize(context);
     return Container(
@@ -92,6 +112,7 @@ class _BodyState extends State<Body> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          Manger().sizedBox(0, 0.1, context),
           boxpadding(size),
           topImage(size),
           boxpadding(size),
@@ -146,40 +167,40 @@ class _BodyState extends State<Body> {
   }
 
   bool checkfieldformat() {
-    if (_emailController.text.isEmpty ||
-        _birthdateController.text.isEmpty ||
-        _firstname.text.isEmpty ||
+    if (_firstname.text.isEmpty ||
         _lastname.text.isEmpty ||
-        _phonenumber.text.isEmpty) return false;
+        myemail == "null" ||
+        myphonenumber == "null") return false;
     return true;
   }
 
-  Container middlebox(Size size) {
+  Center middlebox(Size size) {
     return middleboxoutline(size);
   }
 
-  Container middleboxoutline(Size size) {
-    return Container(
-      width: size.width * 0.80,
-      height: size.height * 0.70,
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-              //    color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 0,
-              blurRadius: 10,
-              offset: Offset(0, 15),
-              color: Colors.black26
-              // changes position of shadow
-              ),
-        ],
-        color: kbackground,
-        border: Border.all(
-          width: 0.1,
+  Center middleboxoutline(Size size) {
+    return Center(
+      child: Container(
+        width: size.width * 0.80,
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+                //    color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 0,
+                blurRadius: 10,
+                offset: Offset(0, 15),
+                color: Colors.black26
+                // changes position of shadow
+                ),
+          ],
+          color: kbackground,
+          border: Border.all(
+            width: 0.1,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(40)),
         ),
-        borderRadius: BorderRadius.all(Radius.circular(40)),
+        child: middleboxentites(size),
       ),
-      child: middleboxentites(size),
     );
   }
 
@@ -198,17 +219,10 @@ class _BodyState extends State<Body> {
         Manger().sizedBox(0, 0.02, context),
         lastname(size),
         Manger().sizedBox(0, 0.02, context),
-        email(size),
-        Manger().sizedBox(0, 0.02, context),
 
         //padding2(size, 0.02),
         birthday(size),
         Manger().sizedBox(0, 0.02, context),
-
-        //padding2(size, 0.02),
-        //signinmethod(size),
-        phonenumber(size),
-        Padding(padding: EdgeInsets.all(5)),
 
         nextbutton(size),
         Padding(padding: EdgeInsets.all(5)),
@@ -221,11 +235,12 @@ class _BodyState extends State<Body> {
             style: TextStyle(fontWeight: FontWeight.bold, color: kerror),
           ),
         ),
-        Padding(padding: EdgeInsets.all(2)),
 
         // forgotpassword(size),1
         //singinthrow(),
-        changesigninmethod(size)
+        // changesigninmethod(size),
+
+        Padding(padding: EdgeInsets.all(10)),
         //singinthrow(),
         // Padding(padding: EdgeInsets.all(size.height * 0.01)),
         //changesigninmethod(size),
@@ -286,81 +301,35 @@ class _BodyState extends State<Body> {
 
   Container birthday(Size size) {
     return Container(
-      width: size.width * 0.75,
-      //height: size.height * 0.06,
-      child: TextField(
-          decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                borderSide: new BorderSide(
-                  width: 2.0,
-                  color: kbackground,
-                  //style: BorderStyle.solid
-                ),
-                borderRadius: new BorderRadius.all(Radius.circular(120)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: new BorderSide(
-                  width: 2.0,
-                  color: kbackground,
-                  //style: BorderStyle.solid
-                ),
-                borderRadius: new BorderRadius.all(Radius.circular(120)),
-              ),
-              filled: true,
-              fillColor: Colors.grey[80],
-              contentPadding: const EdgeInsets.symmetric(vertical: 0.0),
-              prefixIcon: Icon(
-                Icons.date_range_outlined,
+        width: size.width * 0.75,
+        //height: size.height * 0.06,
+        child: Container(
+          decoration: BoxDecoration(
+              color: Colors.grey[200], borderRadius: BorderRadius.circular(30)),
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: () {
+                  showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(1950),
+                          lastDate: DateTime.now())
+                      .then((value) {
+                    setState(() {
+                      _dateTime = value!;
+                      pickeddate = DateFormat('dd/MM/yyyy').format(_dateTime);
+                      print("asdsa:${pickeddate.toString()}");
+                    });
+                  });
+                },
+                icon: Icon(Icons.date_range_outlined),
                 color: ksecondrycolor,
               ),
-              hintText: Locales.lang == "en"
-                  ? "Birth date dd/mm/yy"
-                  : "تاريخ الميلاد يوم/شهر/سنة",
-              hintStyle: TextStyle(
-                  fontSize: 14.0, height: 2.0, color: Colors.grey[600])),
-          controller: _birthdateController,
-          textAlign: TextAlign.start,
-          keyboardType: TextInputType.text),
-    );
-  }
-
-  Container phonenumber(Size size) {
-    return Container(
-      width: size.width * 0.75,
-      //height: size.height * 0.06,
-      child: TextField(
-        decoration: InputDecoration(
-            focusedBorder: OutlineInputBorder(
-              borderSide: new BorderSide(
-                width: 2.0,
-                color: kbackground,
-                //style: BorderStyle.solid
-              ),
-              borderRadius: new BorderRadius.all(Radius.circular(120)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: new BorderSide(
-                width: 2.0,
-                color: kbackground,
-                //style: BorderStyle.solid
-              ),
-              borderRadius: new BorderRadius.all(Radius.circular(120)),
-            ),
-            filled: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 0.0),
-            fillColor: Colors.grey[80],
-            prefixIcon: Icon(
-              Icons.phone,
-              color: ksecondrycolor,
-            ),
-            hintText: Locales.lang == "en" ? " Phone number" : " رقم الموبايل ",
-            hintStyle: TextStyle(
-                fontSize: 14.0, height: 2.0, color: Colors.grey[600])),
-        controller: _phonenumber,
-        textAlign: TextAlign.start,
-        keyboardType: TextInputType.number,
-      ),
-    );
+              Text(pickeddate == null ? "pick your birthdate" : pickeddate),
+            ],
+          ),
+        ));
   }
 
   Container nextbutton(Size size) {
@@ -387,12 +356,12 @@ class _BodyState extends State<Body> {
                 color: kbackground,
               )
             : LocaleText(
-                "next",
+                "signup",
                 style: Manger().styleofText(
                     kbackground, false, size.width * 0.04, context, true),
               ),
         onPressed: () async {
-          await next(size);
+          await creataccount(size);
         },
         onLongPress: () => Get.to(SecondSignUpPage()),
       ),
@@ -505,45 +474,6 @@ class _BodyState extends State<Body> {
         controller: _lastname,
         textAlign: TextAlign.start,
         keyboardType: TextInputType.name,
-      ),
-    );
-  }
-
-  Container email(Size size) {
-    return Container(
-      width: size.width * 0.75,
-      //height: size.height * 0.06,
-      child: TextField(
-        decoration: InputDecoration(
-            focusedBorder: OutlineInputBorder(
-              borderSide: new BorderSide(
-                width: 2.0,
-                color: kbackground,
-                //style: BorderStyle.solid
-              ),
-              borderRadius: new BorderRadius.all(Radius.circular(120)),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderSide: new BorderSide(
-                width: 2.0,
-                color: kbackground,
-                //style: BorderStyle.solid
-              ),
-              borderRadius: new BorderRadius.all(Radius.circular(120)),
-            ),
-            filled: true,
-            contentPadding: const EdgeInsets.symmetric(vertical: 0.0),
-            fillColor: Colors.grey[80],
-            prefixIcon: Icon(
-              Icons.mail_outline_rounded,
-              color: ksecondrycolor,
-            ),
-            hintText: Locales.lang == "en" ? "email" : "البريد الالكتروني",
-            hintStyle: TextStyle(
-                fontSize: 14.0, height: 2.0, color: Colors.grey[600])),
-        controller: _emailController,
-        textAlign: TextAlign.start,
-        keyboardType: TextInputType.emailAddress,
       ),
     );
   }

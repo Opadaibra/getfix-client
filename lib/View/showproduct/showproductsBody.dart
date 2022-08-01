@@ -10,22 +10,34 @@ import 'package:flutter_locales/flutter_locales.dart';
 import 'package:getfix/Controller/Apicaller.dart';
 import 'package:getfix/Mywidgits/modifedappbar.dart';
 import 'package:getfix/constants/constant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //import 'package:fluttertoast/fluttertoast.dart';
 
-class Dashboardbody extends StatefulWidget {
+class Showproductsbody extends StatefulWidget {
   @override
-  _DashboardbodyState createState() => _DashboardbodyState();
+  _ShowproductsbodyState createState() => _ShowproductsbodyState();
 }
 
-class _DashboardbodyState extends State<Dashboardbody> {
+class _ShowproductsbodyState extends State<Showproductsbody> {
   List userdata = [];
+  String phonenumber = '';
+  getphonenumber() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    try {
+      phonenumber = pref.getString("phonenumber")!;
+      print("asdas $phonenumber");
+    } catch (e) {
+      print("error get phonenumber $e");
+    }
+  }
 
-  Future fetchmachin() async {
+  Future viewprod() async {
+    print("pasdsad $phonenumber");
     final queryParameters = {
-      'id': "1",
+      'number': phonenumber,
     };
     final uri = Uri.https('al-hafez.herokuapp.com',
-        '/api/customer/get_my_missions', queryParameters);
+        '/api/customer/get_all_products', queryParameters);
     final headers = {HttpHeaders.contentTypeHeader: 'application/json'};
     final response = await http.get(uri, headers: headers);
     if (response.statusCode == 200) {
@@ -52,7 +64,10 @@ class _DashboardbodyState extends State<Dashboardbody> {
   ];
   @override
   void initState() {
-    fetchmachin();
+    getphonenumber();
+    Future.delayed(Duration(seconds: 2), () {
+      viewprod();
+    });
 
     print(customer_id);
   }
@@ -98,87 +113,39 @@ class _DashboardbodyState extends State<Dashboardbody> {
           ], borderRadius: BorderRadius.circular(20), color: kbackground),
           child: GestureDetector(
             onTap: () {
-              print("asdsadsa ${userdata[index]["statues_id"]}");
               Get.defaultDialog(
                 title: "details",
                 content: Column(
                   children: [
                     ListTile(
                       leading: Text(
-                        " اسم المستخدم",
+                        " اسم الجهاز",
                       ),
-                      trailing: Text("${userdata[index]["name_of_customer"]}"),
+                      trailing: Text("${userdata[index]["name"]}"),
                     ),
                     ListTile(
                       leading: Text(
-                        "الكفالة ",
+                        "تاريخ بداية الكفالة ",
                       ),
-                      trailing: Text("${userdata[index]["warranty"]}"),
+                      trailing:
+                          Text("${userdata[index]["start_warranty_date"]}"),
+                    ),
+                    ListTile(
+                      leading: Text("تاريخ نهاية الكفالة"),
+                      trailing: Text("${userdata[index]["end_warranty_date"]}"),
                     ),
                     ListTile(
                       leading: Text(
-                        " يوم الصيانة المفضل",
+                        " رقم الجهاز ",
                       ),
-                      trailing: Text("${userdata[index]["day_favorite"]}"),
+                      trailing: Text("${userdata[index]["syrial_number"]}"),
                     ),
                     ListTile(
                       leading: Text(
-                        "رقم المهمة",
+                        " حالة الجهاز ",
                       ),
-                      trailing: Text("${userdata[index]["id"]}"),
+                      trailing: Text("${userdata[index]["status"]}"),
                     ),
-                    ListTile(
-                      leading: Text(
-                        "رقم الموبايل",
-                      ),
-                      trailing: Text("${userdata[index]["phone_number1"]}"),
-                    ),
-                    ListTile(
-                      leading: Text(
-                        "نوع الآلة",
-                      ),
-                      trailing: Text("${userdata[index]["machine_type"]}"),
-                    ),
-                    ListTile(
-                      leading: Text(
-                        "تاريخ الانشاء",
-                      ),
-                      trailing: Text("${userdata[index]["created_at"]}"),
-                    ),
-                    ListTile(
-                      leading: Text(
-                        "الشارع",
-                      ),
-                      trailing: Text("${userdata[index]["street"]}"),
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 1
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("تم الإرسال"),
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 2
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("جار المعالجة"),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 3
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("تمت الصيانة"),
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 5
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("مؤجل")
-                      ],
-                    )
                   ],
                 ),
               );
@@ -187,28 +154,14 @@ class _DashboardbodyState extends State<Dashboardbody> {
               children: [
                 ListTile(
                   leading: Text(
-                    "رقم المهمة",
+                    " اسم الجهاز",
                   ),
-                  trailing: Text("${userdata[index]["id"]}"),
+                  trailing: Text("${userdata[index]["name"]}"),
                 ),
                 ListTile(
-                    leading: Text(
-                      "رقم الموبايل",
-                    ),
-                    trailing: Text("${userdata[index]["phone_number1"]}"),
-                    dense: true),
-                ListTile(
-                    leading: Text(
-                      "نوع الآلة ",
-                    ),
-                    trailing: Text("${userdata[index]["machine_type"]}"),
-                    dense: true),
-                ListTile(
-                    leading: Text(
-                      "تاريخ الانشاء",
-                    ),
-                    trailing: Text("${userdata[index]["created_at"]}"),
-                    dense: true),
+                  leading: Text("تاريخ نهاية الكفالة"),
+                  trailing: Text("${userdata[index]["end_warranty_date"]}"),
+                ),
               ],
             ),
           ),
