@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "547369177675",
+    "project_id": "getfix-295b2",
+    "storage_bucket": "getfix-295b2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:547369177675:android:74648451387ede8a6673ce",
+        "android_client_info": {
+          "package_name": "com.example.getfix"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "547369177675-cuiro90eccnffbotfqdg3ui52ravjqse.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC4z2M_SMwvieuLSCeHZXGC0fZ_FpiG7Fo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "547369177675-cuiro90eccnffbotfqdg3ui52ravjqse.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
