@@ -3,7 +3,10 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
+import 'package:getfix/Controller/linkapi.dart';
+import 'package:getfix/View/addsite/Addsitebodysecond.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_locales/flutter_locales.dart';
@@ -19,8 +22,11 @@ class Dashboardbody extends StatefulWidget {
 
 class _DashboardbodyState extends State<Dashboardbody> {
   List userdata = [];
-
+  double rate = 0;
+  final TextEditingController note = new TextEditingController();
   Future fetchmachin() async {
+    print(customer_id);
+
     final queryParameters = {
       'id': "1",
     };
@@ -84,6 +90,42 @@ class _DashboardbodyState extends State<Dashboardbody> {
     );
   }
 
+  bool enablerate = false;
+  String statmessage = "";
+
+  getstate(int index) {
+    print("asdsadsa ${userdata[index]["status_id"]}");
+    int x = userdata[index]["status_id"];
+
+    switch (x) {
+      case 1:
+        setState(() {
+          statmessage = "مرسل";
+          enablerate = false;
+        });
+        break;
+      case 2:
+        setState(() {
+          statmessage = "جار المعالجة";
+          enablerate = false;
+        });
+        break;
+      case 4:
+        setState(() {
+          statmessage = "منتهي";
+          enablerate = true;
+        });
+        break;
+      case 5:
+        setState(() {
+          statmessage = "مؤجل  ";
+          enablerate = false;
+        });
+        break;
+      default:
+    }
+  }
+
   ListView body(Size size) {
     return ListView.builder(
       itemBuilder: (context, index) {
@@ -98,11 +140,13 @@ class _DashboardbodyState extends State<Dashboardbody> {
           ], borderRadius: BorderRadius.circular(20), color: kbackground),
           child: GestureDetector(
             onTap: () {
-              print("asdsadsa ${userdata[index]["statues_id"]}");
+              print("asdsadsa ${userdata[index]["status_id"]}");
+
+              getstate(index);
               Get.defaultDialog(
                 title: "details",
-                content: Column(
-                  children: [
+                content: SingleChildScrollView(
+                  child: Column(children: [
                     ListTile(
                       leading: Text(
                         " اسم المستخدم",
@@ -115,12 +159,12 @@ class _DashboardbodyState extends State<Dashboardbody> {
                       ),
                       trailing: Text("${userdata[index]["warranty"]}"),
                     ),
-                    ListTile(
-                      leading: Text(
-                        " يوم الصيانة المفضل",
-                      ),
-                      trailing: Text("${userdata[index]["day_favorite"]}"),
-                    ),
+                    // ListTile(
+                    //   leading: Text(
+                    //     " يوم الصيانة المفضل",
+                    //   ),
+                    //   trailing: Text("${userdata[index]["day_favorite"]}"),
+                    // ),
                     ListTile(
                       leading: Text(
                         "رقم المهمة",
@@ -151,35 +195,46 @@ class _DashboardbodyState extends State<Dashboardbody> {
                       ),
                       trailing: Text("${userdata[index]["street"]}"),
                     ),
-                    Row(
-                      children: [
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 1
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("تم الإرسال"),
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 2
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("جار المعالجة"),
-                      ],
+                    ListTile(
+                      leading: Text(
+                        "حالة الطلب",
+                      ),
+                      trailing: Text(statmessage),
                     ),
-                    Row(
-                      children: [
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 3
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("تمت الصيانة"),
-                        Icon(Icons.circle_rounded,
-                            color: userdata[index]["statues_id"] == 5
-                                ? Colors.blue
-                                : Colors.grey),
-                        Text("مؤجل")
-                      ],
-                    )
-                  ],
+                    if (enablerate) Text("تقييم فريق الصيانة"),
+                    Container(
+                      child: TextField(
+                        controller: note,
+                        decoration: InputDecoration(hintText: "ادخل التقييم"),
+                      ),
+                    ),
+                    Container(
+                      child: enablerate
+                          ? RatingBar.builder(
+                              minRating: 0,
+                              allowHalfRating: false,
+                              maxRating: 5,
+                              glow: true,
+                              glowColor: kprimarycolor,
+                              updateOnDrag: true,
+                              unratedColor: kprimarycolor,
+                              itemBuilder: (context, _) =>
+                                  Icon(Icons.star_rounded, color: Colors.amber),
+                              onRatingUpdate: (rating) {
+                                setState(() {
+                                  rate = rating;
+                                });
+                                print(rate);
+                              })
+                          : null,
+                    ),
+                    if (enablerate)
+                      ElevatedButton(
+                        onPressed: sendrate,
+                        child: Text("إرسال التقييم"),
+                        style: buttonStyle,
+                      ),
+                  ]),
                 ),
               );
             },
@@ -216,6 +271,38 @@ class _DashboardbodyState extends State<Dashboardbody> {
       },
       itemCount: userdata.isEmpty ? 0 : userdata.length,
     );
+  }
+
+  sendrate() async {
+    var respone = await apicaller.postrequest(ratelinke, {
+      "rate": rate.toInt(),
+      "note": note.text,
+      "customer_id": "$customer_id",
+      "maintenance_workshop": "13"
+    });
+    print(respone);
+    // try {
+    //   if (respone['message'] == "succes") {
+    //     setState(() {
+    //       ScaffoldMessenger.of(context).showSnackBar(
+    //         SnackBar(
+    //             backgroundColor: kprimarycolor,
+    //             content: Text("تم إرسال التقييم",
+    //                 style: Manger()
+    //                     .styleofText(kbackground, false, 16, context, false))),
+    //       );
+    //     });
+    //   }
+    // } on Exception catch (e) {
+    //   // TODO
+    // }
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //       backgroundColor: kprimarycolor,
+    //       content: Text("لم يتم إرسال التقييم",
+    //           style: Manger()
+    //               .styleofText(kbackground, false, 16, context, false))),
+    // );
   }
 
   Container vewingorders(BuildContext context) {

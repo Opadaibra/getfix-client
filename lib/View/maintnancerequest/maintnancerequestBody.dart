@@ -1,18 +1,21 @@
 //Sign BODY
 
 import 'dart:async';
+
 import 'dart:io';
 import 'dart:convert';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_locales/flutter_locales.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:get/get.dart';
 import 'package:getfix/Controller/Apicaller.dart';
 import 'package:getfix/Controller/linkapi.dart';
 import 'package:getfix/View/addsite/Addsitebody.dart';
 import 'package:getfix/constants/constant.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -37,7 +40,9 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
   List<String> mysite = [];
   List<String> machinlist = [];
   List<int> templist = [];
-  File? myfile;
+//  File? myfile;
+
+  final recorder = FlutterSoundRecorder();
   String statusmsg = "";
   // ignore: deprecated_member_use
   var _selectedsite;
@@ -46,17 +51,32 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
   final TextEditingController maintenanceday = new TextEditingController();
   final TextEditingController comenucationnum = new TextEditingController();
   final TextEditingController explainstate = new TextEditingController();
+  final TextEditingController name = new TextEditingController();
   final TextEditingController note = new TextEditingController();
   Apicaller apicaller = new Apicaller();
 
   @override
   // ignore: must_call_super
   void initState() {
+    initrecorder();
     // SetuserSitelist();
     Future.delayed(Duration(seconds: 2), () {
       SetuserSitelist();
     });
     getcustomerid();
+  }
+
+  Future initrecorder() async {
+    final status = await Permission.microphone.request();
+    if (status != PermissionStatus.granted) {
+      throw 'Microphone Permission not granted';
+    }
+    await recorder.openRecorder();
+  }
+
+  void dispos() {
+    recorder.closeRecorder();
+    super.dispose();
   }
 
   getcustomerid() async {
@@ -109,7 +129,7 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
     return Column(children: [
       sitedrobdowbutton(size, context),
       defaultpadd,
-      machin(context, size),
+      //machin(context, size),
       defaultpadd,
       Text(
         "$statusmsg",
@@ -199,70 +219,8 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
 
   ListView body(Size size) {
     return ListView(
-      children: [
-        Verticaldefaultpadding,
-        // SizedBox(
-        //   height: size.height * 0.3,
-        //   width: size.width ,
-        //   child: Stepper(
-        //     steps: getstep(),
-        //     controlsBuilder: (context, {onStepCancel, onStepContinue}) => null,
-        //     type: StepperType.horizontal,
-        //   ),
-        // ),
-/*
-              Card(
-                shape: BeveledRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                color: ksecondrycolor,
-                child: Column(
-                  children: [
-                    Text(
-                      "Request state",
-                      style: Manger().styleofText(
-                          kbackground, false, size.width * 0.05, context, true),
-                    ),
-                    Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                            whatisstate() == 1
-                                ? Icons.send_rounded
-                                : Icons.check_circle_outline_sharp,
-                            size: size.width * 0.1,
-                            color:
-                                whatisstate() == 1 ? kbackground : kprimarycolor),
-                        Text("--------------"),
-                        Icon(
-                          Icons.wifi_protected_setup,
-                          size: size.width * 0.1,
-                        ),
-                        Text("----------------"),
-                        Icon(
-                          Icons.done,
-                          size: size.width * 0.1,
-                        ),
-                      ],
-                    ),
-                    Padding(padding: EdgeInsets.symmetric(vertical: 10)),
-                  ],
-                ),
-              ),
-      */
-
-        Container(child: anybuttonpressed() ? fillorders(1, size) : null),
-      ],
+      children: [fillorders(1, size)],
     );
-  }
-
-  Container getmmachin() {
-    return Container(
-        decoration: kboxdecoration,
-        child: Column(
-          children: [],
-        ));
   }
 
   Future<void> _scan() async {
@@ -317,11 +275,14 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
                 blurRadius: 10, offset: Offset(0, 20), color: kdefaultshadow)
           ]),
       child: ListTile(
-        leading: LocaleText(
-          "barcodebut",
-          style: TextStyle(color: kprimarycolor, fontWeight: FontWeight.bold),
-          textAlign: TextAlign.start,
-        ),
+        leading: scanResult != null
+            ? LocaleText(
+                "barcodebut",
+                style: TextStyle(
+                    color: kprimarycolor, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.start,
+              )
+            : Text(""),
         trailing: IconButton(
             icon: Icon(
               Icons.qr_code,
@@ -345,132 +306,76 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
         Step(title: Text("Done"), content: Container()),
       ];
 
-  Container machin(BuildContext context, Size size) {
-    return Container(
-      height: size.height * 0.25,
-      margin: EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          color: kbackground,
-          boxShadow: [
-            BoxShadow(
-                blurRadius: 20, color: kdefaultshadow, offset: Offset(0, 10))
-          ]),
-      child: Column(
-        children: [
-          Padding(padding: EdgeInsets.all(5)),
-          LocaleText(
-            "pick",
-            style: TextStyle(
-                color: kprimarycolor,
-                fontSize: 18,
-                fontWeight: FontWeight.bold),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: Image.asset(
-                  "Images/freazer.png",
-                  color: arr[0] == true ? kprimarycolor : ksecondrycolor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    arr = [!arr[0], false, false];
-                  });
-                },
-                iconSize: size.width * 0.2,
-                splashRadius: size.width * 0.1,
-                highlightColor: kprimarycolor,
-                //   splashColor: kprimarycolor,
-              ),
-              Padding(
-                  padding: EdgeInsetsDirectional.only(start: kdefaultpadding)),
-              IconButton(
-                icon: Image.asset(
-                  "Images/wachmachine.png",
-                  color: arr[1] == true ? kprimarycolor : ksecondrycolor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    arr = [false, !arr[1], false];
-                    //  wachmachin = !wachmachin;
-                  });
-                },
-                iconSize: size.width * 0.2,
-                splashRadius: size.width * 0.1,
-                highlightColor: kprimarycolor,
-              ),
-              Padding(
-                  padding: EdgeInsetsDirectional.only(start: kdefaultpadding)),
-              IconButton(
-                icon: Image.asset(
-                  "Images/aircooler.png",
-                  color: arr[2] == true ? kprimarycolor : ksecondrycolor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    // aircooler = !aircooler;
-                    arr = [false, false, !arr[2]];
-                  });
-                },
-                iconSize: size.width * 0.2,
-                splashRadius: size.width * 0.1,
-                highlightColor: kprimarycolor,
-              ),
-            ],
-          ),
-          Container(
-              child: anybuttonpressed()
-                  ? ListTile(
-                      title: LocaleText(
-                      "fillreq",
-                      style: Theme.of(context)
-                          .textTheme
-                          .headline6!
-                          .copyWith(color: kprimarycolor),
-                      textAlign: TextAlign.center,
-                    ))
-                  : null),
-        ],
-      ),
-    );
-  }
-
   Container fillorders(int type, Size size) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: SingleChildScrollView(
-          child: Column(children: [
-        // sizeofmachine(size),
-        maintenancedate(size),
-        phonenumber(size),
-        explainissue(size),
-        barcodephoto(size),
-        dammagevedio(size),
-        //  notes(size),
-        voicerecorde(size),
-        sendbuton(size, context),
-      ])),
+          child: Container(
+        decoration: kboxdecoration,
+        child: Column(children: [
+          // sizeofmachine(size),
+          // maintenancedate(size),
+          changename(size),
+          phonenumber(size),
+          explainissue(size),
+          barcodephoto(size),
+          //  voicerecorde(size, context),
+          Verticaldefaultpadding,
+          sendbuton(size, context),
+        ]),
+      )),
     );
   }
 
-  Container voicerecorde(Size size) {
+  bool recording = false;
+  Container voicerecorde(Size size, BuildContext context) {
     return Container(
       padding: EdgeInsetsDirectional.all(10),
-      child: Row(
+      child: Column(
         children: [
-          LocaleText("record", style: khintstyle),
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.mic,
-                size: size.width * 0.07,
-                color: kerror,
-              )),
+          StreamBuilder<RecordingDisposition>(
+              stream: recorder.onProgress,
+              builder: (context, snapshot) {
+                final duration =
+                    snapshot.hasData ? snapshot.data!.duration : Duration.zero;
+
+                return Text("${duration.inSeconds} s");
+              }),
+          Row(
+            children: [
+              LocaleText("record", style: khintstyle),
+              ElevatedButton(
+                  onPressed: () async {
+                    if (recorder.isRecording) {
+                      await stop();
+                      setState(() {
+                        recording = false;
+                      });
+                    } else {
+                      record();
+                      setState(() {
+                        recording = true;
+                      });
+                    }
+                  },
+                  child: Icon(
+                    recording ? Icons.stop : Icons.mic,
+                    size: size.width * 0.07,
+                    color: kerror,
+                  )),
+            ],
+          ),
         ],
       ),
     );
+  }
+
+  Future record() async {
+    await recorder.startRecorder(toFile: 'audio');
+  }
+
+  Future stop() async {
+    await recorder.stopRecorder();
   }
 
   Container notes(Size size) {
@@ -527,7 +432,7 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
           trailing: IconButton(
               onPressed: _scan,
               icon: Icon(
-                Icons.camera_enhance_rounded,
+                Icons.qr_code,
                 color: Colors.grey,
               )),
 
@@ -549,6 +454,23 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
     );
   }
 
+  Container changename(Size size) {
+    return Container(
+      margin: defaultmargin,
+      child: TextField(
+        controller: name,
+        minLines: 1,
+        maxLines: 5,
+        decoration: InputDecoration(
+            hintText: Locales.lang == "en" ? "name" : "الاسم",
+            hintStyle: khintstyle),
+        textAlign: TextAlign.start,
+        keyboardType: TextInputType.name,
+        textInputAction: TextInputAction.next,
+      ),
+    );
+  }
+
   Container explainissue(Size size) {
     return Container(
       margin: defaultmargin,
@@ -561,6 +483,7 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
             hintStyle: khintstyle),
         textAlign: TextAlign.start,
         keyboardType: TextInputType.name,
+        textInputAction: TextInputAction.next,
       ),
     );
   }
@@ -575,6 +498,7 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
             hintStyle: khintstyle),
         textAlign: TextAlign.start,
         keyboardType: TextInputType.name,
+        textInputAction: TextInputAction.next,
       ),
     );
   }
@@ -591,29 +515,9 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
             hintStyle: khintstyle),
         textAlign: TextAlign.start,
         keyboardType: TextInputType.name,
+        textInputAction: TextInputAction.next,
       ),
     );
-  }
-
-  Container sizeofmachine(Size size) {
-    return Container(
-      margin: defaultmargin,
-      child: TextField(
-        controller: machinsize,
-        decoration: InputDecoration(
-            hintText: Locales.lang == "en" ? "Size" : "القياس",
-            hintStyle: khintstyle),
-        textAlign: TextAlign.start,
-        keyboardType: TextInputType.name,
-      ),
-    );
-  }
-
-  bool anybuttonpressed() {
-    for (var i = 0; i < arr.length; i++) {
-      if (arr[i] == true) return true;
-    }
-    return false;
   }
 
   bool iswarrantyed = false;
@@ -625,9 +529,13 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
             checkwarranty, {"syr_num": scanResult!.rawContent.toString()});
         print(respon);
         if (respon['message'] == "True") {
-          iswarrantyed = true;
-        } else {
-          iswarrantyed = false;
+          setState(() {
+            iswarrantyed = true;
+          });
+        } else if (respon['message'] == "False") {
+          setState(() {
+            iswarrantyed = false;
+          });
         }
       } else {
         setState(() {
@@ -695,14 +603,14 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
     );
   }
 
-  bool checkfield(String machin) {
+  bool checkfield() {
     if (maintenanceday.text.isEmpty ||
         explainstate.text.isEmpty ||
         scanResult == null ||
         Street == "" ||
         cityid == 0 ||
         regionid == 0 ||
-        "$machin" == "no") {
+        name.text.isEmpty) {
       return false;
     }
 
@@ -745,46 +653,20 @@ class _maintnancerequestState extends State<MaintnancerequestBody> {
   }
 
   void sendrequest() async {
-    String machintype = getmachintype();
-    int x = 0;
-    if (iswarrantyed) {
-      x = 1;
-    }
-    if (!iswarrantyed) {
-      x = 0;
-    }
-    if (checkfield(machintype)) {
-      print("addddd");
-      try {
-        var response = await apicaller.postrequest(sendmainreq, {
-          "id": "$customer_id",
-          "type": machintype,
-          "day": maintenanceday.text,
-          "problem": explainstate.text,
-          "street": Street,
-          "city_id": "$cityid",
-          "region_id": "$regionid",
-          "syr_num": scanResult!.rawContent.toString(),
-          "warranty": "$x"
-        });
-        print(response);
-        // setState(() {
-        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        //     backgroundColor: kprimarycolor,
-        //     duration: Duration(seconds: 2),
-        //     content: Text(Locales.lang == "en"
-        //         ? "request has been sent successfully 👍"
-        //         : "تم إرسال الطلب بنجاح 👍"),
-        //   ));
-        // });
-      } on Exception catch (e) {
-        print(e);
-      }
-    } else {
-      print("notsend");
-      setState(() {
-        statusmsg = "please scan qr first";
+    print("addddd");
+    try {
+      var response = await apicaller.postrequest(sendmainreq, {
+        "name": name.text,
+        "problem": explainstate.text,
+        "number1": comenucationnum.text,
+        "street": Street,
+        "city_id": "$cityid",
+        "region_id": "$regionid",
+        "syr_num": scanResult!.rawContent.toString(),
       });
+      print(response);
+    } on Exception catch (e) {
+      print(e);
     }
   }
 

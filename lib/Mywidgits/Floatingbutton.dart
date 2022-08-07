@@ -31,14 +31,14 @@ class Floatingbutton extends StatelessWidget {
           ),
           backgroundColor: ksecondrycolor,
         ),
-        SpeedDialChild(
-          onTap: (() => Get.to(MyyNotification())),
-          child: Icon(
-            Icons.notifications,
-            color: kbackground,
-          ),
-          backgroundColor: ksecondrycolor,
-        ),
+        // SpeedDialChild(
+        //   onTap: (() => Get.to(MyyNotification())),
+        //   child: Icon(
+        //     Icons.notifications,
+        //     color: kbackground,
+        //   ),
+        //   backgroundColor: ksecondrycolor,
+        // ),
         SpeedDialChild(
           //label: "asds",
           labelStyle: TextStyle(),
@@ -49,14 +49,14 @@ class Floatingbutton extends StatelessWidget {
           ),
           backgroundColor: ksecondrycolor,
         ),
-        SpeedDialChild(
-          onTap: (() => Get.to(Maintnancerequest())),
-          child: Icon(
-            Icons.precision_manufacturing_rounded,
-            color: kbackground,
-          ),
-          backgroundColor: ksecondrycolor,
-        ),
+        // SpeedDialChild(
+        //   onTap: (() => Get.to(Maintnancerequest())),
+        //   child: Icon(
+        //     Icons.precision_manufacturing_rounded,
+        //     color: kbackground,
+        //   ),
+        //   backgroundColor: ksecondrycolor,
+        // ),
         SpeedDialChild(
           onTap: (() => Get.to(Warranty())),
           labelStyle: TextStyle(),

@@ -86,7 +86,7 @@ class _ShowproductsbodyState extends State<Showproductsbody> {
               size: size.width * 0.12,
               color: kbackground,
             ),
-            localeText: LocaleText("showtasks", style: Headlinestyle)),
+            localeText: LocaleText("showprod", style: Headlinestyle)),
         Verticaldefaultpadding,
         Text(
           userdata.isEmpty ? "There are no request" : "",
@@ -152,16 +152,18 @@ class _ShowproductsbodyState extends State<Showproductsbody> {
             },
             child: Column(
               children: [
-                ListTile(
-                  leading: Text(
-                    " اسم الجهاز",
+                if (index > 0)
+                  ListTile(
+                    leading: Text(
+                      " اسم الجهاز",
+                    ),
+                    trailing: Text("${userdata[index]["name"]}"),
                   ),
-                  trailing: Text("${userdata[index]["name"]}"),
-                ),
-                ListTile(
-                  leading: Text("تاريخ نهاية الكفالة"),
-                  trailing: Text("${userdata[index]["end_warranty_date"]}"),
-                ),
+                if (index > 0)
+                  ListTile(
+                    leading: Text("تاريخ نهاية الكفالة"),
+                    trailing: Text("${userdata[index]["end_warranty_date"]}"),
+                  ),
               ],
             ),
           ),
@@ -169,249 +171,5 @@ class _ShowproductsbodyState extends State<Showproductsbody> {
       },
       itemCount: userdata.isEmpty ? 0 : userdata.length,
     );
-  }
-
-  Container vewingorders(BuildContext context) {
-    return Container(
-        alignment: AlignmentDirectional.topStart,
-        padding: EdgeInsetsDirectional.only(start: 10, top: 10),
-        child: anybuttonpressed()
-            ? ListTile(
-                title: LocaleText(
-                  "orasd",
-                  style: Manger()
-                      .styleofText(kprimarycolor, false, 18, context, false),
-                  textAlign: TextAlign.start,
-                ),
-                trailing: DropdownButton(
-                  value: _selectedorder,
-                  onChanged: (newvalue) async {
-                    setState(() {
-                      _selectedorder = newvalue;
-                    });
-                  },
-                  items: order.map((orderhead) {
-                    return DropdownMenuItem(
-                      child: new Text(orderhead),
-                      value: orderhead,
-                    );
-                  }).toList(),
-                  hint: LocaleText("orasd"),
-                ),
-              )
-            : null);
-  }
-
-  Container machin(BuildContext context, Size size) {
-    return Container(
-      height: size.height * 0.2,
-      margin: defaultmargin,
-      decoration: kboxdecoration,
-      child: Column(
-        children: [
-          Padding(padding: EdgeInsets.all(5)),
-          LocaleText(
-            "pickview",
-            style: TextStyle(
-                color: kprimarycolor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              IconButton(
-                icon: Image.asset(
-                  "Images/freazer.png",
-                  color: arr[0] == true ? kprimarycolor : ksecondrycolor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    arr = [!arr[0], false, false];
-                  });
-                },
-
-                iconSize: size.width * 0.2,
-                splashRadius: size.width * 0.1,
-                highlightColor: kprimarycolor,
-
-                //   splashColor: kprimarycolor,
-              ),
-              IconButton(
-                icon: Image.asset(
-                  "Images/wachmachine.png",
-                  color: arr[1] == true ? kprimarycolor : ksecondrycolor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    arr = [false, !arr[1], false];
-                    //  wachmachin = !wachmachin;
-                  });
-                },
-                iconSize: size.width * 0.2,
-                splashRadius: size.width * 0.1,
-                highlightColor: kprimarycolor,
-              ),
-              IconButton(
-                icon: Image.asset(
-                  "Images/aircooler.png",
-                  color: arr[2] == true ? kprimarycolor : ksecondrycolor,
-                ),
-                onPressed: () {
-                  setState(() {
-                    // aircooler = !aircooler;
-                    arr = [false, false, !arr[2]];
-                  });
-                },
-                iconSize: size.width * 0.2,
-                splashRadius: size.width * 0.1,
-                highlightColor: kprimarycolor,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  SingleChildScrollView orders(int type, Size size) {
-    List<int> i = [1, 2, 3];
-    return SingleChildScrollView(
-        child: Column(children: [
-      if (type == 1)
-        for (int j = 0; j < i.length; j++)
-          Viewfreezcontant(
-              size, "2/" + "${j + 8}" + "/2022", 15 + j * 3, j + 1),
-      Padding(padding: EdgeInsets.all(10))
-    ]));
-  }
-
-  Column Viewfreezcontant(
-      Size size, String dateTime, int freezasize, int myid) {
-    return Column(
-      children: [
-        Padding(padding: EdgeInsets.all(10)),
-        GestureDetector(
-          onTap: () {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30)),
-                    title: LocaleText(
-                      "detailes",
-                      style: Manger().styleofText(
-                          ksecondrycolor, false, 18, context, false),
-                      textAlign: TextAlign.center,
-                    ),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: LocaleText(
-                            "reqno",
-                            style: Manger().styleofText(
-                                kprimarycolor, false, 16, context, false),
-                            textAlign: TextAlign.start,
-                          ),
-                          trailing: Text("$myid"),
-                        ),
-                        ListTile(
-                          title: LocaleText(
-                            "reqdate",
-                            style: Manger().styleofText(
-                                kprimarycolor, false, 16, context, false),
-                            textAlign: TextAlign.start,
-                          ),
-                          trailing: Text(dateTime),
-                        ),
-                        ListTile(
-                          title: LocaleText(
-                            "freezsize",
-                            style: Manger().styleofText(
-                                kprimarycolor, false, 16, context, false),
-                            textAlign: TextAlign.start,
-                          ),
-                          trailing: Text("$freezasize"),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10)),
-                            ElevatedButton(
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all(kprimarycolor),
-                                  shape: MaterialStateProperty.all<
-                                          RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(18.0))),
-                                ),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(SnackBar(
-                                    backgroundColor: kprimarycolor,
-                                    duration: Duration(seconds: 2),
-                                    content: Text(Locales.lang == "en"
-                                        ? "complaint has been sent successfully 👍"
-                                        : "تم إرسال الشكوى بنجاح 👍"),
-                                  ));
-                                },
-                                child: Text(
-                                  "Make a complaint",
-                                  style: TextStyle(color: kbackground),
-                                )),
-                          ],
-                        )
-                      ],
-                    ),
-                  );
-                });
-          },
-          child: Container(
-            width: size.width * .85,
-            decoration: kboxdecoration,
-            child: Column(
-              children: [
-                Container(
-                  //margin: EdgeInsets.all(10),
-                  child: ListTile(
-                      title: LocaleText(
-                        "reqdate",
-                        textAlign: TextAlign.start,
-                      ),
-                      trailing: Text(
-                        dateTime,
-                        textAlign: TextAlign.end,
-                      )),
-                ),
-                Container(
-                  child: ListTile(
-                      title: LocaleText(
-                        "freezsize",
-                        textAlign: TextAlign.start,
-                      ),
-                      trailing: Text(
-                        "$freezasize",
-                        textAlign: TextAlign.end,
-                      )),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  bool anybuttonpressed() {
-    for (var i = 0; i < arr.length; i++) {
-      if (arr[i] == true) return true;
-    }
-    return false;
   }
 }

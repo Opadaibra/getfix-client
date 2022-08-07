@@ -11,7 +11,8 @@ class Maintnancerequest extends StatelessWidget {
     return Scaffold(
       appBar: MainAppBar(),
       body: MaintnancerequestBody(),
-      drawerEdgeDragWidth: MediaQuery.of(context).size.width,
+      
+      //drawerEdgeDragWidth: MediaQuery.of(context).size.width,
       drawer: MyDrawer(),        floatingActionButton: Floatingbutton(),
 
     );

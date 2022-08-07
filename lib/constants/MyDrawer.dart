@@ -45,15 +45,15 @@ class MyDrawerState extends State<MyDrawer> {
                 children: [
                   //DrawerHeader(child: Text("")),
                   useraccountheader(context),
-                  //  maintnancerequest(context),
+                  maintnancerequest(context),
                   // notiticationListtitle(context),
                   //   rateteam(context),
                   showmissions(context),
                   showproducts(context),
                   // checkWarrantyestate(context),
                   //addsite(context),
-                  maintenanceid(context),
-                  usertutorialgid(context),
+                  // maintenanceid(context),
+                  // usertutorialgid(context),
                   settings(context),
                   logout(context),
                 ],
@@ -275,7 +275,7 @@ class MyDrawerState extends State<MyDrawer> {
             ),
           ),
           confirm: InkWell(
-            onTap: () => Get.off(LoginPage()),
+            onTap: () => Get.off(() => LoginPage()),
             child: LocaleText(
               "confirm",
               style: dialogbuttonstyle,

@@ -16,3 +16,4 @@ const String checkwarranty = "$Serverlink/warranty/check_by_syr_num";
 const String getcitybystring = "$Serverlink/city/getIdOfCity";
 const String getregionbystring = "$Serverlink/region/getIdOfRegion";
 const String fetchmachinrequest = "$Serverlink/customer/get_my_missions";
+const String ratelinke = "$Serverlink/Rating/add";

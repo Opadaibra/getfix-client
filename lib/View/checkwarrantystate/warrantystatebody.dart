@@ -167,8 +167,12 @@ class _warrantystatebodyState extends State<warrantystatebody> {
           setState(() {
             messsagewarrnty = Locales.string(context, "iswarranty");
           });
+        } else if (respon['message'] == "the machine doesn't exist") {
+          setState(() {
+            messsagewarrnty = Locales.string(context, "isnotwarranty");
+          });
         } else {
-          messsagewarrnty = Locales.string(context, "isnotwarranty");
+          return;
         }
       }
     } on PlatformException catch (e) {
